@@ -26,11 +26,13 @@ const NAME = 'ShootIn';
 
 const projectText = fs.readFileSync(path.join(ROOT, 'project.godot'), 'utf8');
 const VERSION = (projectText.match(/config\/version="([^"]+)"/) || [])[1] || '1.0.0';
+// Код версии Android должен расти с каждым выпуском: 1.2.3 → 10203.
+const VERSION_CODE = VERSION.split('.').reduce((acc, part, i) => acc + (parseInt(part, 10) || 0) * [10000, 100, 1][i], 0) || 1;
 
 const argv = process.argv.slice(2);
 const SKIP_TESTS = argv.includes('--skip-tests');
 const wanted = argv.filter((a) => !a.startsWith('--'));
-const ALL = ['windows', 'linux', 'macos', 'web'];
+const ALL = ['windows', 'linux', 'macos', 'web', 'android'];
 const targets = wanted.length ? wanted : ALL;
 for (const t of targets) if (!ALL.includes(t)) { console.error('Неизвестная платформа: ' + t); process.exit(2); }
 
@@ -56,7 +58,7 @@ function godot(args, options) { return run(GODOT, ['--headless', '--path', ROOT,
 
 function writePresets(windowsTemplate) {
   const template = fs.readFileSync(path.join(__dirname, 'export_presets.template.cfg'), 'utf8');
-  const text = template.replace('@WINDOWS_TEMPLATE@', windowsTemplate || '').replace(/@VERSION@/g, VERSION);
+  const text = template.replace('@WINDOWS_TEMPLATE@', windowsTemplate || '').replace(/@VERSION_CODE@/g, String(VERSION_CODE)).replace(/@VERSION@/g, VERSION);
   fs.writeFileSync(path.join(ROOT, 'export_presets.cfg'), text);
 }
 
@@ -91,6 +93,13 @@ function checkSmoke(exe) {
   const r = run(exe, ['--headless', '--script', path.join(__dirname, 'smoke_test.gd')], { quiet: true, allowFail: true });
   if (!/ИТОГ: ВСЁ ХОРОШО/.test(r.text)) fail('проверка игры на собранном exe не пройдена:\n' + r.text.slice(-2500));
   log('проверка на собранном exe: все 34 уровня загружаются из упакованных ресурсов');
+}
+
+function checkTouch(exe) {
+  if (SKIP_TESTS) return;
+  const r = run(exe, ['--headless', '--script', path.join(__dirname, 'touch_test.gd')], { quiet: true, allowFail: true });
+  if (!/ИТОГ: ВСЁ ХОРОШО/.test(r.text)) fail('проверка сенсорного управления на собранном exe не пройдена:\n' + r.text.slice(-2500));
+  log('проверка на собранном exe: джойстик, кнопки, тап-выстрел и сфера по зажатию работают');
 }
 
 // --- Windows ---------------------------------------------------------------------------------
@@ -152,6 +161,7 @@ function buildWindows() {
   if (!peHasSection(data, 'pck')) fail('в ShootIn.exe нет встроенного PCK (секция pck)');
   log('PCK встроен в exe (секция pck найдена)');
   checkSmoke(exe);
+  checkTouch(exe);
   const setup = path.join(OUT, 'windows', `ShootIn-${VERSION}-Setup.exe`);
   buildInstaller(exe, setup);
   fs.writeFileSync(path.join(OUT, 'windows', 'portable', 'README.txt'),
@@ -275,7 +285,7 @@ function buildWeb() {
   if (fs.existsSync(site)) for (const entry of fs.readdirSync(site)) rmrf(path.join(site, entry));
   exportPreset('Web', path.join(site, 'index.html'));
   const files = fs.readdirSync(site).sort();
-  for (const need of ['index.html', 'index.js', 'index.wasm', 'index.pck']) if (!files.includes(need)) fail('в web-экспорте нет ' + need);
+  for (const need of ['index.html', 'index.js', 'index.wasm', 'index.pck', 'index.manifest.json', 'index.service.worker.js']) if (!files.includes(need)) fail('в web-экспорте нет ' + need);
   log('файлы сайта: ' + files.join(', '));
   const entries = files.map((f) => ({ name: f, data: fs.readFileSync(path.join(site, f)), mode: 0o644 }));
   const zip = path.join(OUT, 'web', `ShootIn-${VERSION}-web.zip`);
@@ -289,6 +299,85 @@ function buildWeb() {
     'exec python3 -m http.server 8060\n', 'utf8');
   addResult('Web: сайт (zip для itch.io и хостинга)', zip);
   addResult('Web: папка сайта (открывать через run-local)', path.join(site, 'index.html'));
+}
+
+// --- Android ---------------------------------------------------------------------------------
+
+/** Настройка из редактора Godot (пути к Android SDK и JDK задаются там один раз). */
+function editorSetting(key) {
+  const file = path.join(process.env.APPDATA || '', 'Godot', 'editor_settings-4.3.tres');
+  if (!fs.existsSync(file)) return null;
+  const m = fs.readFileSync(file, 'utf8').match(new RegExp('^' + key + '\\s*=\\s*"([^"]*)"', 'm'));
+  return m ? m[1] : null;
+}
+
+/** Ключ подписи APK: создаётся один раз и лежит в tools/export/signing (папка не попадает в git). */
+function ensureKeystore(javaHome) {
+  const dir = path.join(__dirname, 'signing');
+  mkdir(dir);
+  const store = path.join(dir, 'shootin-release.keystore');
+  const credentials = path.join(dir, 'credentials.json');
+  if (!fs.existsSync(store) || !fs.existsSync(credentials)) {
+    rmrf(store);
+    const password = crypto.randomBytes(18).toString('base64url');
+    run(path.join(javaHome, 'bin', 'keytool.exe'), ['-genkeypair', '-keystore', store, '-alias', 'shootin', '-keyalg', 'RSA', '-keysize', '2048',
+      '-validity', '36500', '-storepass', password, '-keypass', password, '-dname', 'CN=ShootIn, O=ShootIn, C=RU'], { quiet: true });
+    fs.writeFileSync(credentials, JSON.stringify({ alias: 'shootin', password }, null, 2));
+    warnings.push('создан новый ключ подписи Android (' + path.relative(ROOT, dir) + '). Сохраните копию этой папки: обновления уже установленной игры подписываются тем же ключом');
+  }
+  return { store, ...JSON.parse(fs.readFileSync(credentials, 'utf8')) };
+}
+
+function buildAndroid() {
+  step('Android (APK, подписан своим ключом)');
+  const sdk = process.env.ANDROID_HOME || editorSetting('export/android/android_sdk_path');
+  const javaHome = process.env.JAVA_HOME || editorSetting('export/android/java_sdk_path');
+  if (!sdk || !fs.existsSync(sdk)) fail('не найден Android SDK (задайте путь в Godot: Редактор → Параметры редактора → Экспорт → Android, или переменную ANDROID_HOME)');
+  if (!javaHome || !fs.existsSync(javaHome)) fail('не найден JDK 17 (Godot: Параметры редактора → Экспорт → Android, или переменная JAVA_HOME)');
+  const key = ensureKeystore(javaHome);
+  // Godot берёт ключ релизной подписи из этих переменных, так что пароль не попадает в export_presets.cfg.
+  // apksigner запускается тем java, что найдёт в PATH, — на этом компьютере это Java 8, которая не читает ключи JDK 17.
+  process.env.JAVA_HOME = javaHome;
+  process.env.PATH = path.join(javaHome, 'bin') + path.delimiter + process.env.PATH;
+  process.env.GODOT_ANDROID_KEYSTORE_RELEASE_PATH = key.store;
+  process.env.GODOT_ANDROID_KEYSTORE_RELEASE_USER = key.alias;
+  process.env.GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = key.password;
+  writePresets('');
+  const apk = path.join(OUT, 'android', `ShootIn-${VERSION}-android.apk`);
+  exportPreset('Android', apk);
+
+  const names = archive.zipRead(fs.readFileSync(apk)).map((e) => e.name);
+  for (const need of ['AndroidManifest.xml', 'lib/arm64-v8a/libgodot_android.so', 'lib/armeabi-v7a/libgodot_android.so']) {
+    if (!names.includes(need)) fail('в APK нет ' + need);
+  }
+  if (names.some((n) => n.startsWith('lib/x86'))) fail('в APK попали лишние архитектуры x86');
+  log(`в APK: ${names.length} файлов, архитектуры arm64-v8a и armeabi-v7a, манифест на месте`);
+
+  const tools = path.join(sdk, 'build-tools', '34.0.0');
+  const verify = cp.spawnSync('cmd.exe', ['/c', path.join(tools, 'apksigner.bat'), 'verify', '--verbose', apk],
+    { encoding: 'utf8', env: { ...process.env, JAVA_HOME: javaHome }, windowsHide: true });
+  const verifyText = (verify.stdout || '') + (verify.stderr || '');
+  if (verify.status !== 0 || !/Verifies/.test(verifyText)) fail('подпись APK не проходит проверку apksigner:\n' + verifyText.slice(-1500));
+  log('подпись APK проверена apksigner (Verifies)');
+  const badging = run(path.join(tools, 'aapt2.exe'), ['dump', 'badging', apk], { quiet: true, allowFail: true }).text;
+  const pkg = /package: name='([^']+)' versionCode='(\d+)' versionName='([^']+)'/.exec(badging);
+  if (!pkg || pkg[1] !== 'com.shootin.game' || pkg[3] !== VERSION) fail('в APK неверные имя пакета или версия: ' + (pkg ? pkg.slice(1).join(' ') : 'aapt2 не прочитал манифест'));
+  const label = /application-label:'([^']*)'/.exec(badging);
+  log(`APK: пакет ${pkg[1]}, версия ${pkg[3]} (код ${pkg[2]}), название «${label ? label[1] : '?'}»`);
+  if (!/uses-permission: name='android.permission.INTERNET'/.test(badging)) warnings.push('в APK нет разрешения INTERNET (установка модов по ссылке не заработает)');
+  // Ориентация лежит в манифесте: 0 landscape, 6 sensorLandscape, 8 reverseLandscape, 11 userLandscape.
+  const manifest = run(path.join(tools, 'aapt2.exe'), ['dump', 'xmltree', '--file', 'AndroidManifest.xml', apk], { quiet: true, allowFail: true }).text;
+  const orientation = /screenOrientation\(0x[0-9a-f]+\)=(\d+)/.exec(manifest);
+  if (!orientation || ![0, 6, 8, 11].includes(parseInt(orientation[1], 10))) fail('в APK не горизонтальная ориентация экрана: screenOrientation=' + (orientation ? orientation[1] : 'не задана'));
+  log('ориентация экрана: горизонтальная (screenOrientation=' + orientation[1] + ')');
+  fs.writeFileSync(path.join(OUT, 'android', 'README.txt'),
+    `ShootIn ${VERSION} — Android.\r\n\r\n` +
+    `ShootIn-${VERSION}-android.apk — установочный файл (Android 5.0+, 32- и 64-битные телефоны и планшеты).\r\n` +
+    'Установка: скопируйте файл на телефон и откройте его; Android спросит разрешение «Установка из неизвестных источников» для приложения,\r\n' +
+    'через которое вы открываете файл (браузер или «Файлы») — разрешите. Или по кабелю: adb install ShootIn-' + VERSION + '-android.apk\r\n' +
+    'Управление: джойстик слева, тап по экрану — выстрел, зажатый палец при полной шкале силы — заряженная сфера.\r\n' +
+    'APK подписан ключом из tools/export/signing — храните этот ключ: обновления подписываются им же, иначе игру придётся удалять и ставить заново.\r\n', 'utf8');
+  addResult('Android: APK (подписан)', apk);
 }
 
 // --- итоги -----------------------------------------------------------------------------------
@@ -307,7 +396,8 @@ function writeReadme() {
 | **Linux** (x86_64) | \`linux/ShootIn-${VERSION}-linux-x86_64.tar.gz\`${mb(`linux/ShootIn-${VERSION}-linux-x86_64.tar.gz`)} | \`install.sh\` + игра: установщик сам ставит право на запуск, создаёт папки и ярлыки |
 | | \`linux/portable/ShootIn.x86_64\`${mb('linux/portable/ShootIn.x86_64')} | игра одним файлом, PCK встроен (после копирования нужен \`chmod +x\`) |
 | **macOS** (Intel и Apple Silicon, 10.12+) | \`macos/ShootIn-${VERSION}-macos.zip\`${mb(`macos/ShootIn-${VERSION}-macos.zip`)} | \`ShootIn.app\` (universal) + \`Install ShootIn.command\` |
-| **Web** | \`web/ShootIn-${VERSION}-web.zip\`${mb(`web/ShootIn-${VERSION}-web.zip`)} | сайт: \`index.html\` + wasm; загружается на itch.io или любой хостинг как есть |
+| **Web** | \`web/ShootIn-${VERSION}-web.zip\`${mb(`web/ShootIn-${VERSION}-web.zip`)} | сайт: \`index.html\` + wasm; загружается на itch.io или любой хостинг как есть; работает и на телефоне (сенсорное управление), добавляется на главный экран |
+| **Android** (5.0+, 32 и 64 бита) | \`android/ShootIn-${VERSION}-android.apk\`${mb(`android/ShootIn-${VERSION}-android.apk`)} | установочный файл, подписан своим ключом (\`tools/export/signing\`) |
 
 \`SHA256SUMS.txt\` — контрольные суммы всех файлов.
 
@@ -344,20 +434,36 @@ cd ShootIn-${VERSION}-linux-x86_64
 В браузере моды ставятся кнопкой «Установить из файла…» (окно выбора файла браузера) или по https-ссылке (если сервер мода разрешает CORS);
 хранятся они в браузере (IndexedDB) и пропадают при очистке данных сайта. Кнопки «Выход» и «Открыть папку модов» в веб-версии скрыты.
 
+## Android и сенсорное управление
+
+Открыть \`.apk\` на телефоне (или \`adb install\`); Android один раз спросит разрешение «Установка из неизвестных источников» для приложения, через которое открыт файл.
+На iPhone и iPad (где свой APK поставить нельзя) игра запускается в Safari: открыть сайт → «Поделиться» → «На экран «Домой»» — приложение откроется на весь экран.
+Управление на телефоне и в браузере с сенсорным экраном включается само:
+
+- **джойстик** в левом нижнем углу — бег влево-вправо; резко вверх — прыжок;
+- **тап по экрану** — выстрел в то место, куда ткнули (палец можно не отпускать — пули полетят очередью; тап в зоне джойстика тоже стреляет);
+- **зажать палец на цели при полной шкале силы** — вокруг пальца заполняется кольцо, и через треть секунды в эту сторону вылетает заряженная сфера; короткий тап при полной шкале — обычная пуля;
+- **кнопки справа**: большая — прыжок, меч — удар, щит — щит (пока держишь); справа вверху — пауза. Вертикальный экран ставит игру на паузу с просьбой повернуть телефон.
+
+В веб-версии на телефоне после первого касания игра просит полноэкранный режим и горизонтальную ориентацию. Для проверки на компьютере: открыть сайт с \`?touch=1\` в адресе.
+Моды на Android: «Установить из файла…» и по ссылке; кнопки «Открыть папку модов» там нет (папка игры закрыта от файловых менеджеров).
+
 ## Как пересобрать
 
 \`\`\`
 node tools/export/build.js                  # всё
-node tools/export/build.js windows web      # только выбранные платформы
+node tools/export/build.js windows web      # только выбранные платформы (windows, linux, macos, web, android)
 node tools/export/build.js --skip-tests     # без проверки игры на собранном exe
 \`\`\`
-Нужны Godot 4.3 с шаблонами экспорта (переменная \`GODOT\`), Node.js и \`csc.exe\` из Windows (установщик). Версия — \`config/version\` в \`project.godot\`.
+Нужны Godot 4.3 с шаблонами экспорта (переменная \`GODOT\`), Node.js и \`csc.exe\` из Windows (установщик); для APK — Android SDK (build-tools 34.0.0) и JDK 17, пути к ним задаются в Godot (Параметры редактора → Экспорт → Android). Версия — \`config/version\` в \`project.godot\`.
 Сборка сама проверяет: PCK встроен (Windows — секция \`pck\`, Linux — метка \`GDPC\`), бинарник Linux — ELF x86-64, macOS-приложение universal и подписано (ad-hoc),
 а собранный \`ShootIn.exe\` прогоняется через \`tools/export/smoke_test.gd\`: меню, экран модов, все 34 уровня и установка мода из zip.
+Сенсорное управление проверяет \`tools/export/touch_test.gd\` (искусственные касания: джойстик, кнопки, тап-выстрел, сфера по зажатию, пауза), он же прогоняется на собранном \`ShootIn.exe\`.
 Установщик Windows проверяет \`tools/export/test_installer.ps1\` (установка, ярлыки, реестр, запуск, обновление, удаление).
 
 ## Что не проверено
 
+APK собран, подписан и проверен (\`apksigner verify\`, пакет, версия, ориентация, разрешения, архитектуры), но на телефоне или эмуляторе не запускался; сенсорное управление проверено искусственными касаниями и в браузере.
 Linux- и macOS-сборки собраны и проверены статически (формат файлов, права, скрипты установки на тестовом профиле), но не запускались на настоящих Linux и Mac.
 В релизных сборках работают клавиши PageUp/PageDown (переход между уровнями): отключаются константой \`DEBUG_LEVEL_KEYS\` в \`scripts/autoload/game.gd\`.
 `;
@@ -371,7 +477,7 @@ function writeSums() {
   const walk = (dir) => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const p = path.join(dir, e.name);
-      if (e.isDirectory()) { if (e.name !== 'site') walk(p); } else if (/\.(exe|zip|gz|x86_64)$/.test(e.name)) files.push(p);
+      if (e.isDirectory()) { if (e.name !== 'site') walk(p); } else if (/\.(exe|zip|gz|x86_64|apk)$/.test(e.name)) files.push(p);
     }
   };
   walk(OUT);
@@ -395,6 +501,7 @@ function main() {
     if (targets.includes('linux')) buildLinux();
     if (targets.includes('macos')) buildMac();
     if (targets.includes('web')) buildWeb();
+    if (targets.includes('android')) buildAndroid();
   } finally {
     writePresets('');  // в проекте остаются чистые пресеты без путей к временным файлам
   }

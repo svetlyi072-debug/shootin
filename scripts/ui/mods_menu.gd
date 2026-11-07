@@ -65,6 +65,8 @@ func _build_ui() -> void:
 	column.add_child(title)
 	if _is_web():
 		column.add_child(_label("Моды хранятся в браузере (на этом сайте): установите .zip кнопками внизу.", 14))
+	elif _is_phone_app():
+		column.add_child(_label("Моды хранятся в памяти игры: установите .zip из файла или по ссылке кнопками внизу.", 14))
 	else:
 		column.add_child(_label("Моды лежат в папке:  %s" % Mods.user_mods_dir(), 14))
 
@@ -123,7 +125,7 @@ func _build_ui() -> void:
 	var install := HBoxContainer.new()
 	install.add_theme_constant_override("separation", 8)
 	column.add_child(install)
-	if not _is_web():  # у веб-версии нет папки на диске, которую можно открыть
+	if not _is_web() and not _is_phone_app():  # у веб-версии и приложения на телефоне нет папки, которую можно открыть
 		install.add_child(_button("Открыть папку модов", _open_folder, 17))
 	install.add_child(_button("Установить из файла…", _choose_file, 17))
 	_url_edit = LineEdit.new()
@@ -331,6 +333,11 @@ func _install_file(path: String) -> void:
 
 func _is_web() -> bool:
 	return OS.has_feature("web")
+
+
+## Приложение на Android или iOS: данные игры лежат в закрытой папке, файловым менеджером её не открыть.
+func _is_phone_app() -> bool:
+	return OS.has_feature("android") or OS.has_feature("ios")
 
 
 ## Веб-версия: у игры нет доступа к дискам, поэтому файл выбирается обычным окном браузера

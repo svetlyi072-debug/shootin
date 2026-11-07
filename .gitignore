@@ -5,3 +5,6 @@
 # Сборки и временные файлы экспорта (создаёт tools/export/build.js)
 /export/
 /tools/export/build/
+
+# Ключ подписи Android (создаёт tools/export/build.js; хранить отдельно, в git не класть)
+/tools/export/signing/

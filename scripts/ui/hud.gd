@@ -5,6 +5,10 @@ extends CanvasLayer
 
 const BANNER_TIME := 3.0
 const HINT_TIME := 2.5
+## Подсказка по управлению на сенсорном экране — показывается в начале уровня.
+const TOUCH_CONTROLS := "Джойстик слева — бег (резко вверх — прыжок)    Тап по экрану — выстрел в эту точку    Кнопки справа — прыжок, удар, щит
+Когда шкала силы полна, зажми палец на цели — вылетит заряженная сфера"
+const TOUCH_CONTROLS_TIME := 12.0
 
 @onready var _health_bar: ProgressBar = %HealthBar
 @onready var _health_value: Label = %HealthValue
@@ -29,6 +33,8 @@ const HINT_TIME := 2.5
 
 var _banner_timer := Timer.new()
 var _hint_timer := Timer.new()
+## «Заново» и «В меню» под сообщением о смерти или победе — на сенсорном экране нет клавиш R и Esc.
+var _touch_buttons: HBoxContainer
 
 
 func _ready() -> void:
@@ -40,6 +46,11 @@ func _ready() -> void:
 
 	_controls.visible = Display.hints_visible  # P прячет и показывает подсказки с кнопками
 	Display.hints_changed.connect(_controls.set_visible)
+	if Touch.enabled:
+		_controls.text = TOUCH_CONTROLS
+		_controls.visible = true
+		get_tree().create_timer(TOUCH_CONTROLS_TIME).timeout.connect(_controls.hide)
+	_make_touch_buttons()
 	_boss_panel.hide()
 	_message_box.hide()
 	_banner.hide()
@@ -83,7 +94,7 @@ func _on_player_power_changed(current: int, maximum: int) -> void:
 	_power_bar.max_value = maximum
 	_power_bar.value = current
 	if current >= maximum:
-		_power_value.text = "%d/%d  ГОТОВО! (K / ПКМ)" % [current, maximum]
+		_power_value.text = "%d/%d  ГОТОВО! (%s)" % [current, maximum, "зажми палец на цели" if Touch.enabled else "K / ПКМ"]
 	else:
 		_power_value.text = "%d/%d" % [current, maximum]
 
@@ -103,7 +114,7 @@ func _on_enemies_left_changed(count: int) -> void:
 
 
 func _on_player_died() -> void:
-	_show_message("Ты умер", "R — начать уровень заново · Esc — в главное меню")
+	_show_message("Ты умер", "R — начать уровень заново · Esc — в главное меню", true)
 
 
 func _on_boss_activated(boss_name: String, current: int, maximum: int) -> void:
@@ -123,7 +134,7 @@ func _on_level_completed(next_title: String) -> void:
 
 func _on_game_won() -> void:
 	_boss_panel.hide()
-	_show_message("Ты победил!", "Все уровни пройдены (%s). R — новая игра · Esc — в главное меню" % Game.difficulty_name())
+	_show_message("Ты победил!", "Все уровни пройдены (%s). R — новая игра · Esc — в главное меню" % Game.difficulty_name(), true)
 
 
 func _show_hint(text: String) -> void:
@@ -132,11 +143,37 @@ func _show_hint(text: String) -> void:
 	_hint_timer.start(HINT_TIME)
 
 
-func _show_message(text: String, sub_text: String) -> void:
+## with_buttons — предложить «Заново» и «В меню» (на сенсорном экране вместо подсказки про клавиши).
+func _show_message(text: String, sub_text: String, with_buttons := false) -> void:
 	_banner.hide()
 	_message.text = text
-	_sub_message.text = sub_text
+	var touch_buttons := with_buttons and Touch.enabled
+	_sub_message.text = "" if touch_buttons else sub_text
+	_touch_buttons.visible = touch_buttons
 	_message_box.show()
+
+
+func _make_touch_buttons() -> void:
+	_touch_buttons = HBoxContainer.new()
+	_touch_buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	_touch_buttons.add_theme_constant_override("separation", 28)
+	_touch_buttons.hide()
+	for entry in [["Заново", _restart_after_end], ["В меню", Game.go_to_menu]]:
+		var button := Button.new()
+		button.text = entry[0]
+		button.custom_minimum_size = Vector2(280, 72)
+		button.add_theme_font_size_override("font_size", 30)
+		button.pressed.connect(entry[1])
+		_touch_buttons.add_child(button)
+	_message_box.add_child(_touch_buttons)
+
+
+## То же, что клавиша R после смерти или победы.
+func _restart_after_end() -> void:
+	if Game.game_completed:
+		Game.start_new_game()
+	else:
+		get_tree().reload_current_scene()
 
 
 # --- Пауза ------------------------------------------------------------------------

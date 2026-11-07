@@ -185,8 +185,19 @@ func set_shielding(on: bool) -> void:
 ## Куда целится игрок (к курсору) и стрелял ли он только что — по этому умные враги
 ## заранее уходят с линии огня.
 func aim_direction() -> Vector2:
-	var to_cursor := get_global_mouse_position() - get_muzzle()
+	var to_cursor := aim_point() - get_muzzle()
 	return to_cursor.normalized() if to_cursor.length_squared() > 1.0 else Vector2(facing, 0.0)
+
+
+## Точка, в которую целится игрок: курсор мыши, а на сенсорном экране — место, куда ткнули
+## пальцем (экранная точка пересчитывается в мир каждый раз, так что прицел «едет» с камерой).
+## Пока пальцем не целились ни разу, прицел смотрит вперёд.
+func aim_point() -> Vector2:
+	if Touch.enabled:
+		if not Touch.has_aim():
+			return get_muzzle() + Vector2(facing * 100.0, 0.0)
+		return get_canvas_transform().affine_inverse() * Touch.aim_screen
+	return get_global_mouse_position()
 
 
 func seconds_since_shot() -> float:
@@ -314,14 +325,30 @@ func _handle_input() -> void:
 		_attack()
 
 	# Стрельба: ЛКМ — в сторону курсора, L — вперёд. Кнопку можно держать зажатой.
-	if _shoot_cd <= 0.0:
+	# На сенсорном экране — тап в точку цели (см. autoload Touch), зажатый палец при полной
+	# шкале силы выпускает сферу.
+	var touch_sphere := false
+	if Touch.enabled:
+		touch_sphere = _handle_touch_shooting()
+	elif _shoot_cd <= 0.0:
 		if Input.is_action_pressed("shoot"):
-			shoot(get_global_mouse_position() - get_muzzle())
+			shoot(aim_point() - get_muzzle())
 		elif Input.is_action_pressed("shoot_forward"):
 			shoot(Vector2(facing, 0.0))
 
-	if power >= max_power and (auto_fire_sphere or Input.is_action_just_pressed("sphere")):
+	if power >= max_power and (auto_fire_sphere or touch_sphere or Input.is_action_just_pressed("sphere")):
 		_set_state(State.CHARGE)
+
+
+## Стрельба пальцем. Возвращает true, если палец зажат достаточно долго для заряженной сферы.
+func _handle_touch_shooting() -> bool:
+	var shot: int = Touch.poll_shot(power >= max_power)
+	if shot == Touch.SHOT_SPHERE:
+		return true
+	if shot == Touch.SHOT_BULLET and _shoot_cd <= 0.0:
+		shoot(aim_point() - get_muzzle())
+		Touch.bullet_done()
+	return false
 
 
 ## Переключает IDLE / RUN / JUMP, если игрок не занят другим действием.
@@ -477,10 +504,10 @@ func _fire_sphere() -> void:
 	sphere.global_position = get_muzzle() + aim * Game.tiles(0.75)
 
 
-## Куда полетит заряженная сфера: в сторону курсора мыши (единичный вектор).
-## Курсор читается в момент выстрела, так что целиться можно и во время заряда.
+## Куда полетит заряженная сфера: в сторону курсора мыши или пальца (единичный вектор).
+## Прицел читается в момент выстрела, так что целиться можно и во время заряда.
 func sphere_aim() -> Vector2:
-	var to_cursor := get_global_mouse_position() - get_muzzle()
+	var to_cursor := aim_point() - get_muzzle()
 	if to_cursor.length_squared() < 1.0:
 		return Vector2(facing, 0.0)
 	return to_cursor.normalized()

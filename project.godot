@@ -16,6 +16,7 @@ config/version="1.0.0"
 run/main_scene="res://scenes/ui/main_menu.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.png"
+config/quit_on_go_back=false
 boot_splash/bg_color=Color(0.1, 0.11, 0.15, 1)
 boot_splash/image="res://icon.png"
 boot_splash/fullsize=false
@@ -26,6 +27,7 @@ boot_splash/use_filter=false
 Game="*res://scripts/autoload/game.gd"
 Sound="*res://scripts/autoload/sound.gd"
 Display="*res://scripts/autoload/display.gd"
+Touch="*res://scripts/autoload/touch.gd"
 Mods="*res://scripts/autoload/mods.gd"
 
 [display]
@@ -33,6 +35,7 @@ Mods="*res://scripts/autoload/mods.gd"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
+window/handheld/orientation=4
 
 [input]
 

@@ -25,6 +25,7 @@ const MODS_SCENE := "res://scenes/ui/mods_menu.tscn"
 const CREDITS := "Графика CC0: Pixel Frog, LuizMelo, rvros"
 const KEYS := "A/D — бег · Space — прыжок · ЛКМ — стрельба · J — удар · K / ПКМ — сфера · H / СКМ — щит · Esc — пауза
 F11 — на весь экран · P — скрыть подсказки"
+const TOUCH_KEYS := "Джойстик — бег · тап по экрану — выстрел · зажми палец при полной шкале силы — сфера"
 
 
 func _ready() -> void:
@@ -33,6 +34,7 @@ func _ready() -> void:
 	Sound.set_music_override(null)
 	_update_footer(Display.hints_visible)
 	Display.hints_changed.connect(_update_footer)
+	Touch.enabled_changed.connect(func(_on: bool) -> void: _update_footer(Display.hints_visible))
 	_new_game.pressed.connect(_show_difficulty)
 	_continue.pressed.connect(Game.continue_game)
 	_mods.pressed.connect(func() -> void: get_tree().change_scene_to_file(MODS_SCENE))
@@ -53,6 +55,9 @@ func _ready() -> void:
 
 ## Подсказки с кнопками (P прячет их, остаются только авторы графики).
 func _update_footer(show_keys: bool) -> void:
+	if Touch.enabled:
+		_footer.text = TOUCH_KEYS + "    " + CREDITS  # на телефоне клавиши P нет — подсказку не прячем
+		return
 	_footer.text = (KEYS + "    " + CREDITS) if show_keys else CREDITS
 
 
@@ -92,4 +97,7 @@ func _show_difficulty() -> void:
 
 
 func _describe(difficulty: int) -> void:
-	_description.text = DESCRIPTIONS[difficulty]
+	var text: String = DESCRIPTIONS[difficulty]
+	if Touch.enabled:
+		text = text.replace("(держи H или среднюю кнопку мыши)", "(держи кнопку щита справа)")
+	_description.text = text
