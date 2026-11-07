@@ -1,0 +1,240 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_menu"]
+[ext_resource type="Texture2D" path="res://assets/pixel_adventure/backgrounds/blue.png" id="2_bg"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/player.tres" id="3_player"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/slime.tres" id="4_slime"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/skeleton.tres" id="5_skeleton"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/goblin.tres" id="6_goblin"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/bat.tres" id="7_bat"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="TextureRect" parent="."]
+texture_repeat = 2
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bg")
+stretch_mode = 1
+
+[node name="Grass" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -80.0
+offset_bottom = -72.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.45, 0.68, 0.2, 1)
+
+[node name="Dirt" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -72.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+color = Color(0.72, 0.43, 0.31, 1)
+
+[node name="Showcase" type="Node2D" parent="."]
+
+[node name="Hero" type="AnimatedSprite2D" parent="Showcase"]
+position = Vector2(200, 640)
+scale = Vector2(4, 4)
+sprite_frames = ExtResource("3_player")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(0, -16)
+
+[node name="Slime" type="AnimatedSprite2D" parent="Showcase"]
+position = Vector2(370, 640)
+scale = Vector2(3, 3)
+sprite_frames = ExtResource("4_slime")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(0, -11.5)
+
+[node name="Goblin" type="AnimatedSprite2D" parent="Showcase"]
+position = Vector2(930, 640)
+scale = Vector2(2.4, 2.4)
+sprite_frames = ExtResource("6_goblin")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(0, -26)
+flip_h = true
+
+[node name="Skeleton" type="AnimatedSprite2D" parent="Showcase"]
+position = Vector2(1090, 640)
+scale = Vector2(2.4, 2.4)
+sprite_frames = ExtResource("5_skeleton")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(-7, -26)
+flip_h = true
+
+[node name="Bat" type="AnimatedSprite2D" parent="Showcase"]
+position = Vector2(1030, 230)
+scale = Vector2(1.3, 1.3)
+sprite_frames = ExtResource("7_bat")
+animation = &"fly"
+autoplay = "fly"
+flip_h = true
+
+[node name="Center" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -90.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Column" type="VBoxContainer" parent="Center"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Title" type="Label" parent="Center/Column"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.86, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.15, 0.08, 0.05, 1)
+theme_override_constants/outline_size = 18
+theme_override_font_sizes/font_size = 96
+text = "SHOOTIN"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="Center/Column"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+text = "Шуткин против нечисти · 34 уровня · 8 боссов"
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="Center/Column"]
+custom_minimum_size = Vector2(0, 12)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="MainButtons" type="VBoxContainer" parent="Center/Column"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ContinueButton" type="Button" parent="Center/Column/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Продолжить"
+
+[node name="NewGameButton" type="Button" parent="Center/Column/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Новая игра"
+
+[node name="ModsButton" type="Button" parent="Center/Column/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Моды"
+
+[node name="QuitButton" type="Button" parent="Center/Column/MainButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Выход"
+
+[node name="DifficultyPanel" type="VBoxContainer" parent="Center/Column"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="Label" parent="Center/Column/DifficultyPanel"]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 30
+text = "Выбери сложность"
+horizontal_alignment = 1
+
+[node name="EasyButton" type="Button" parent="Center/Column/DifficultyPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Лёгкая — щит, враги без ИИ"
+
+[node name="NormalButton" type="Button" parent="Center/Column/DifficultyPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Нормальная — щит, умные враги"
+
+[node name="HardButton" type="Button" parent="Center/Column/DifficultyPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Сложная — без щита, умные враги"
+
+[node name="Description" type="Label" parent="Center/Column/DifficultyPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(620, 96)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 17
+text = "Описание сложности"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BackButton" type="Button" parent="Center/Column/DifficultyPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(560, 46)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Назад"
+
+[node name="Footer" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -62.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 15
+text = "A/D — бег · Space — прыжок · ЛКМ — стрельба · J — удар · K / ПКМ — сфера · Esc — пауза
+F11 — на весь экран · P — скрыть подсказки    Графика CC0: Pixel Frog, LuizMelo, rvros"
+horizontal_alignment = 1

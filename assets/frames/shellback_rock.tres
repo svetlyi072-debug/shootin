@@ -1,0 +1,39 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/shellback/fx_dust_rock.png" id="1_yt6ht"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nwrag"]
+atlas = ExtResource("1_yt6ht")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d6vtp"]
+atlas = ExtResource("1_yt6ht")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_emwyk"]
+atlas = ExtResource("1_yt6ht")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_alkv8"]
+atlas = ExtResource("1_yt6ht")
+region = Rect2(448, 0, 64, 64)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nwrag")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d6vtp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_emwyk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_alkv8")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 12.0
+}]

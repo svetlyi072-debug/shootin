@@ -1,0 +1,70 @@
+{
+  "id": "my_boss",
+  "name": "Мой босс",
+  "symbol": "L",
+  "stats": {
+    "health": 200,
+    "smart_health_multiplier": 1.5,
+    "speed": 2,
+    "stop_distance": 2,
+    "arena": 12
+  },
+  "sprite": {
+    "frame": [
+      160,
+      111
+    ],
+    "scale": 1.9,
+    "animations": {
+      "idle": {
+        "file": "sprites/idle.png",
+        "fps": 7
+      },
+      "run": {
+        "file": "sprites/run.png",
+        "fps": 10
+      },
+      "attack": {
+        "file": "sprites/attack.png",
+        "fps": 10
+      },
+      "hit": {
+        "file": "sprites/hit.png",
+        "fps": 12
+      },
+      "death": {
+        "file": "sprites/death.png",
+        "fps": 8
+      }
+    }
+  },
+  "attacks": [
+    {
+      "type": "melee",
+      "range": 2.3,
+      "damage": 14,
+      "interval": 1.4,
+      "windup": 0.22,
+      "animation": "attack"
+    },
+    {
+      "type": "projectile",
+      "pattern": "aimed",
+      "projectile": "fireball",
+      "count": 2,
+      "speed": 9,
+      "damage": 10,
+      "interval": 4,
+      "min_range": 3,
+      "animation": "attack"
+    },
+    {
+      "type": "summon",
+      "enemy": "G",
+      "count": 2,
+      "interval": 14,
+      "near_player": true,
+      "animation": "attack"
+    }
+  ]
+}

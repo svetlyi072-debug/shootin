@@ -1,0 +1,72 @@
+[gd_resource type="SpriteFrames" load_steps=10 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/monsters_creatures_fantasy/mushroom/spore.png" id="1_mrvgx"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ejygs"]
+atlas = ExtResource("1_mrvgx")
+region = Rect2(200, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d478x"]
+atlas = ExtResource("1_mrvgx")
+region = Rect2(250, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0qsnw"]
+atlas = ExtResource("1_mrvgx")
+region = Rect2(300, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q3se4"]
+atlas = ExtResource("1_mrvgx")
+region = Rect2(350, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qm6b4"]
+atlas = ExtResource("1_mrvgx")
+region = Rect2(0, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lumxq"]
+atlas = ExtResource("1_mrvgx")
+region = Rect2(50, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b7wje"]
+atlas = ExtResource("1_mrvgx")
+region = Rect2(100, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nnkbu"]
+atlas = ExtResource("1_mrvgx")
+region = Rect2(150, 0, 50, 50)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ejygs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d478x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0qsnw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q3se4")
+}],
+"loop": false,
+"name": &"explode",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qm6b4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lumxq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b7wje")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nnkbu")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 10.0
+}]

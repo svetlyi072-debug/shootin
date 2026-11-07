@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/abyss_eye.gd" id="1_boss"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/flying_eye.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_boss"]
+size = Vector2(80, 56)
+
+[node name="AbyssEye" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 17
+script = ExtResource("1_boss")
+max_health = 200
+power_reward = 0
+corpse_time = 2.0
+boss_name = "Око бездны"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -28)
+shape = SubResource("RectangleShape2D_boss")
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Body"]
+modulate = Color(0.85, 0.6, 1, 1)
+position = Vector2(0, -28)
+scale = Vector2(2.6, 2.6)
+sprite_frames = ExtResource("2_frames")
+animation = &"flight"
+autoplay = "flight"
+offset = Vector2(-2, -1)
+flip_h = false
+
+[node name="StateLabel" type="Label" parent="."]
+offset_left = -80.0
+offset_top = -86.0
+offset_right = 80.0
+offset_bottom = -68.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 12
+text = "IDLE"
+horizontal_alignment = 1

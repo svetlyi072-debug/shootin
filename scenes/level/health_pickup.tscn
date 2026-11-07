@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/health_pickup.gd" id="1_health"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/apple.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_health"]
+size = Vector2(20, 20)
+
+[node name="HealthPickup" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_health")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -12)
+shape = SubResource("RectangleShape2D_health")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -12)
+scale = Vector2(1.5, 1.5)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(0, 2)

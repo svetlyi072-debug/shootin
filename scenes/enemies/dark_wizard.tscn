@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/dark_wizard.gd" id="1_boss"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/evil_wizard.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_boss"]
+size = Vector2(40, 96)
+
+[node name="DarkWizard" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 17
+script = ExtResource("1_boss")
+max_health = 260
+power_reward = 0
+corpse_time = 2.0
+boss_name = "Тёмный колдун"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -48)
+shape = SubResource("RectangleShape2D_boss")
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Body"]
+modulate = Color(1, 1, 1, 1)
+position = Vector2(0, 0)
+scale = Vector2(1.0, 1.0)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(-11.5, -42)
+flip_h = false
+
+[node name="StateLabel" type="Label" parent="."]
+offset_left = -80.0
+offset_top = -124.0
+offset_right = 80.0
+offset_bottom = -106.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 12
+text = "IDLE"
+horizontal_alignment = 1

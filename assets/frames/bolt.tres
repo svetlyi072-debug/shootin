@@ -1,0 +1,72 @@
+[gd_resource type="SpriteFrames" load_steps=10 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/monsters_creatures_fantasy/flying_eye/bolt.png" id="1_mfq3s"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hk3hv"]
+atlas = ExtResource("1_mfq3s")
+region = Rect2(144, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ooqyw"]
+atlas = ExtResource("1_mfq3s")
+region = Rect2(192, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y7m3w"]
+atlas = ExtResource("1_mfq3s")
+region = Rect2(240, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bqp3i"]
+atlas = ExtResource("1_mfq3s")
+region = Rect2(288, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rfprg"]
+atlas = ExtResource("1_mfq3s")
+region = Rect2(336, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lh0bs"]
+atlas = ExtResource("1_mfq3s")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dum3m"]
+atlas = ExtResource("1_mfq3s")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1afwm"]
+atlas = ExtResource("1_mfq3s")
+region = Rect2(96, 0, 48, 48)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hk3hv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ooqyw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y7m3w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bqp3i")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rfprg")
+}],
+"loop": false,
+"name": &"explode",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lh0bs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dum3m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1afwm")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 12.0
+}]

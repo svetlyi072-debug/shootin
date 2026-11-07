@@ -1,0 +1,72 @@
+[gd_resource type="SpriteFrames" load_steps=10 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/monsters_creatures_fantasy/skeleton/sword.png" id="1_601ig"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mmuev"]
+atlas = ExtResource("1_601ig")
+region = Rect2(368, 0, 92, 102)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sgm8d"]
+atlas = ExtResource("1_601ig")
+region = Rect2(460, 0, 92, 102)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l1y6d"]
+atlas = ExtResource("1_601ig")
+region = Rect2(552, 0, 92, 102)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c1omo"]
+atlas = ExtResource("1_601ig")
+region = Rect2(644, 0, 92, 102)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_njoft"]
+atlas = ExtResource("1_601ig")
+region = Rect2(0, 0, 92, 102)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mukcy"]
+atlas = ExtResource("1_601ig")
+region = Rect2(92, 0, 92, 102)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uvtev"]
+atlas = ExtResource("1_601ig")
+region = Rect2(184, 0, 92, 102)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pdpwv"]
+atlas = ExtResource("1_601ig")
+region = Rect2(276, 0, 92, 102)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mmuev")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sgm8d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l1y6d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c1omo")
+}],
+"loop": false,
+"name": &"explode",
+"speed": 16.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_njoft")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mukcy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uvtev")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pdpwv")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 16.0
+}]

@@ -1,0 +1,79 @@
+[gd_resource type="SpriteFrames" load_steps=12 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/pixel_adventure/traps/fire_on.png" id="1_yec34"]
+[ext_resource type="Texture2D" path="res://assets/pixel_adventure/traps/fire_hit.png" id="2_aii8a"]
+[ext_resource type="Texture2D" path="res://assets/pixel_adventure/traps/fire_off.png" id="3_gwepa"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3n2jc"]
+atlas = ExtResource("1_yec34")
+region = Rect2(0, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w4sp4"]
+atlas = ExtResource("1_yec34")
+region = Rect2(16, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_02qia"]
+atlas = ExtResource("1_yec34")
+region = Rect2(32, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_12ryg"]
+atlas = ExtResource("2_aii8a")
+region = Rect2(0, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_atyms"]
+atlas = ExtResource("2_aii8a")
+region = Rect2(16, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_od8v1"]
+atlas = ExtResource("2_aii8a")
+region = Rect2(32, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xngyr"]
+atlas = ExtResource("2_aii8a")
+region = Rect2(48, 0, 16, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dj7bp"]
+atlas = ExtResource("3_gwepa")
+region = Rect2(0, 0, 16, 32)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3n2jc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w4sp4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_02qia")
+}],
+"loop": true,
+"name": &"burn",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_12ryg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_atyms")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_od8v1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xngyr")
+}],
+"loop": true,
+"name": &"ignite",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dj7bp")
+}],
+"loop": false,
+"name": &"off",
+"speed": 1.0
+}]

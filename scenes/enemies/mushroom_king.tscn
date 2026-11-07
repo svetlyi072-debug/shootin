@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/mushroom_king.gd" id="1_boss"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/mushroom.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_boss"]
+size = Vector2(52, 88)
+
+[node name="MushroomKing" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 17
+script = ExtResource("1_boss")
+max_health = 160
+power_reward = 0
+corpse_time = 2.0
+boss_name = "Король-гриб"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -44)
+shape = SubResource("RectangleShape2D_boss")
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Body"]
+modulate = Color(1, 0.85, 0.55, 1)
+position = Vector2(0, 0)
+scale = Vector2(2.6, 2.6)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(-0.5, -26)
+flip_h = false
+
+[node name="StateLabel" type="Label" parent="."]
+offset_left = -80.0
+offset_top = -110.0
+offset_right = 80.0
+offset_bottom = -92.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 12
+text = "IDLE"
+horizontal_alignment = 1

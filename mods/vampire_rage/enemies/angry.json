@@ -1,0 +1,47 @@
+{
+  "id": "angry_ghoul",
+  "name": "Злой гуль",
+  "symbol": "A",
+  "script": "scripts/angry.gd",
+  "stats": {
+    "health": 45,
+    "reward": 20,
+    "speed": 2,
+    "aggro_range": 9,
+    "attack_range": 1.2,
+    "attack_damage": 10,
+    "attack_cooldown": 1.2,
+    "attack_duration": 0.45,
+    "attack_hit_time": 0.22,
+    "dodge_chance": 0
+  },
+  "sprite": {
+    "frame": [
+      160,
+      111
+    ],
+    "scale": 1.2,
+    "animations": {
+      "idle": {
+        "file": "sprites/idle.png",
+        "fps": 7
+      },
+      "move": {
+        "file": "sprites/run.png",
+        "fps": 9
+      },
+      "attack": {
+        "file": "sprites/attack.png",
+        "fps": 11
+      },
+      "hurt": {
+        "file": "sprites/hit.png",
+        "fps": 12
+      },
+      "death": {
+        "file": "sprites/death.png",
+        "fps": 8
+      }
+    }
+  }
+}

@@ -1,0 +1,149 @@
+[gd_resource type="SpriteFrames" load_steps=21 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/monsters_creatures_fantasy/goblin/bomb.png" id="1_c6rce"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i2arn"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(900, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3n4vq"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1000, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i43uv"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_321hr"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x8v6m"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tygw3"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7rtwv"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0rjli"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1600, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aq2t5"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1700, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rjuym"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(1800, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gya58"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(0, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bcvhb"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(100, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rcqn8"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(200, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_chay8"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(300, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m547c"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(400, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0fdhh"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(500, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l6bqg"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(600, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a7ebh"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(700, 0, 100, 100)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e3wnt"]
+atlas = ExtResource("1_c6rce")
+region = Rect2(800, 0, 100, 100)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i2arn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3n4vq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i43uv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_321hr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x8v6m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tygw3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7rtwv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0rjli")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_aq2t5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rjuym")
+}],
+"loop": false,
+"name": &"explode",
+"speed": 20.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gya58")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bcvhb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rcqn8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_chay8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m547c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0fdhh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l6bqg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a7ebh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e3wnt")
+}],
+"loop": true,
+"name": &"fly",
+"speed": 16.0
+}]

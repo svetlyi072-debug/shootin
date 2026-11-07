@@ -1,0 +1,45 @@
+{
+  "id": "my_enemy",
+  "name": "Мой враг",
+  "symbol": "G",
+  "stats": {
+    "health": 50,
+    "reward": 15,
+    "speed": 2.2,
+    "aggro_range": 7,
+    "attack_range": 1.2,
+    "attack_damage": 10,
+    "attack_cooldown": 1.4,
+    "attack_duration": 0.45,
+    "attack_hit_time": 0.22
+  },
+  "sprite": {
+    "frame": [
+      160,
+      111
+    ],
+    "scale": 1.2,
+    "animations": {
+      "idle": {
+        "file": "sprites/idle.png",
+        "fps": 7
+      },
+      "move": {
+        "file": "sprites/run.png",
+        "fps": 9
+      },
+      "attack": {
+        "file": "sprites/attack.png",
+        "fps": 11
+      },
+      "hurt": {
+        "file": "sprites/hit.png",
+        "fps": 12
+      },
+      "death": {
+        "file": "sprites/death.png",
+        "fps": 8
+      }
+    }
+  }
+}

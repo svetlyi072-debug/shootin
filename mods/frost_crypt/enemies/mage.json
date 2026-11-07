@@ -1,0 +1,58 @@
+{
+  "id": "frost_mage",
+  "name": "Ледяной маг",
+  "symbol": "J",
+  "stats": {
+    "health": 40,
+    "reward": 25,
+    "speed": 2,
+    "aggro_range": 9,
+    "attack_range": 1.2,
+    "attack_damage": 8,
+    "attack_cooldown": 1.6,
+    "dodge_chance": 0.2,
+    "corpse_time": 0.9
+  },
+  "throw": {
+    "projectile": "bolt",
+    "damage": 12,
+    "cooldown": 3.2,
+    "min_range": 3,
+    "max_range": 8,
+    "scale": 1.2,
+    "explode_radius": 1
+  },
+  "sprite": {
+    "frame": [
+      160,
+      111
+    ],
+    "scale": 1.2,
+    "animations": {
+      "idle": {
+        "file": "sprites/mage_idle.png",
+        "fps": 7
+      },
+      "move": {
+        "file": "sprites/mage_run.png",
+        "fps": 9
+      },
+      "attack": {
+        "file": "sprites/mage_attack.png",
+        "fps": 11
+      },
+      "throw": {
+        "file": "sprites/mage_attack.png",
+        "fps": 11
+      },
+      "hurt": {
+        "file": "sprites/mage_hit.png",
+        "fps": 12
+      },
+      "death": {
+        "file": "sprites/mage_death.png",
+        "fps": 8
+      }
+    }
+  }
+}

@@ -1,0 +1,54 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/player.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(24, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_attack"]
+size = Vector2(32, 48)
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
+collision_layer = 2
+collision_mask = 17
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -24)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Body"]
+scale = Vector2(2, 2)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(0, -16)
+
+[node name="AttackArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 4
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
+position = Vector2(28, -24)
+shape = SubResource("RectangleShape2D_attack")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, -24)
+zoom = Vector2(1.5, 1.5)
+position_smoothing_enabled = true
+
+[node name="StateLabel" type="Label" parent="."]
+offset_left = -50.0
+offset_top = -80.0
+offset_right = 50.0
+offset_bottom = -64.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 10
+text = "IDLE"
+horizontal_alignment = 1

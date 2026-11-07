@@ -1,0 +1,33 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/level/exit_door.gd" id="1_exit"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/flag.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(24, 56)
+
+[node name="ExitDoor" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_exit")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -28)
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="Sprite" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(0, -32)
+
+[node name="Label" type="Label" parent="."]
+offset_left = -40.0
+offset_top = -64.0
+offset_right = 40.0
+offset_bottom = -48.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 11
+text = "ВЫХОД"
+horizontal_alignment = 1

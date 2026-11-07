@@ -1,0 +1,7 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Сборки и временные файлы экспорта (создаёт tools/export/build.js)
+/export/
+/tools/export/build/

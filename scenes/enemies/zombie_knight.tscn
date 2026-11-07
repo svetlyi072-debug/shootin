@@ -1,0 +1,49 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/walker.gd" id="1_script"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/zombie_knight.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(26, 60)
+
+[node name="ZombieKnight" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 17
+script = ExtResource("1_script")
+max_health = 100
+power_reward = 30
+dodge_chance = 0.0
+corpse_time = 1.0
+aggro_range_tiles = 6.0
+move_speed_tiles = 1.9
+attack_range_tiles = 1.5
+attack_damage = 18
+attack_cooldown = 1.8
+attack_duration = 0.55
+attack_hit_time = 0.3
+anim_move = "run"
+anim_hurt = "hit"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -30)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Body"]
+scale = Vector2(1.25, 1.25)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(-6.5, -24)
+
+[node name="StateLabel" type="Label" parent="."]
+offset_left = -50.0
+offset_top = -84.0
+offset_right = 50.0
+offset_bottom = -68.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 10
+text = "IDLE"
+horizontal_alignment = 1

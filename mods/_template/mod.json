@@ -1,0 +1,15 @@
+{
+  "id": "my_mod",
+  "name": "Мой первый мод",
+  "version": "0.1.0",
+  "author": "Ваше имя",
+  "description": "Что делает мод — одна-две фразы.",
+  "api": 1,
+  "campaign": {
+    "title": "Моя кампания",
+    "levels": [
+      "levels/01_my_level.txt",
+      "levels/02_my_boss.txt"
+    ]
+  }
+}

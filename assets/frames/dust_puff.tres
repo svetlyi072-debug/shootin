@@ -1,0 +1,39 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/shellback/fx_dust_rock.png" id="1_njcml"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6dfiw"]
+atlas = ExtResource("1_njcml")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jdeiv"]
+atlas = ExtResource("1_njcml")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i1o6c"]
+atlas = ExtResource("1_njcml")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4yqnb"]
+atlas = ExtResource("1_njcml")
+region = Rect2(192, 0, 64, 64)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6dfiw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jdeiv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i1o6c")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4yqnb")
+}],
+"loop": false,
+"name": &"puff",
+"speed": 14.0
+}]

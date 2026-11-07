@@ -1,0 +1,17 @@
+{
+  "id": "vampire_rage",
+  "name": "Жажда крови",
+  "version": "1.0.0",
+  "author": "ShootIn",
+  "description": "Пример мода СО СКРИПТАМИ. main.gd: за каждого убитого врага игрок лечится на 3, а счёт убийств сохраняется между запусками. angry.gd: «Злой гуль» (символ A) звереет от каждого удара. Показывает хуки ModScript и скрипт врага.",
+  "api": 1,
+  "scripts": [
+    "scripts/main.gd"
+  ],
+  "campaign": {
+    "title": "Злая арена",
+    "levels": [
+      "levels/01_angry_arena.txt"
+    ]
+  }
+}

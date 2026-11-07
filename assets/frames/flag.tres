@@ -1,0 +1,80 @@
+[gd_resource type="SpriteFrames" load_steps=12 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/pixel_adventure/flag_idle.png" id="1_032v5"]
+[ext_resource type="Texture2D" path="res://assets/pixel_adventure/flag_pressed.png" id="2_qbvn6"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_feglx"]
+atlas = ExtResource("1_032v5")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_12pi3"]
+atlas = ExtResource("2_qbvn6")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_liyyn"]
+atlas = ExtResource("2_qbvn6")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pxb2d"]
+atlas = ExtResource("2_qbvn6")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dult5"]
+atlas = ExtResource("2_qbvn6")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gjq6k"]
+atlas = ExtResource("2_qbvn6")
+region = Rect2(256, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p5ckv"]
+atlas = ExtResource("2_qbvn6")
+region = Rect2(320, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ucmlk"]
+atlas = ExtResource("2_qbvn6")
+region = Rect2(384, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_73o66"]
+atlas = ExtResource("2_qbvn6")
+region = Rect2(448, 0, 64, 64)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_feglx")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_12pi3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_liyyn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pxb2d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dult5")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gjq6k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_p5ckv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ucmlk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_73o66")
+}],
+"loop": false,
+"name": &"pressed",
+"speed": 20.0
+}]

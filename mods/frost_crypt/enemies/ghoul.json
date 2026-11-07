@@ -1,0 +1,47 @@
+{
+  "id": "frost_ghoul",
+  "name": "Ледяной гуль",
+  "symbol": "G",
+  "stats": {
+    "health": 60,
+    "reward": 15,
+    "speed": 2.3,
+    "aggro_range": 7,
+    "attack_range": 1.2,
+    "attack_damage": 12,
+    "attack_cooldown": 1.4,
+    "attack_duration": 0.45,
+    "attack_hit_time": 0.22,
+    "dodge_chance": 0,
+    "corpse_time": 0.9
+  },
+  "sprite": {
+    "frame": [
+      160,
+      111
+    ],
+    "scale": 1.2,
+    "animations": {
+      "idle": {
+        "file": "sprites/ghoul_idle.png",
+        "fps": 7
+      },
+      "move": {
+        "file": "sprites/ghoul_run.png",
+        "fps": 9
+      },
+      "attack": {
+        "file": "sprites/ghoul_attack.png",
+        "fps": 11
+      },
+      "hurt": {
+        "file": "sprites/ghoul_hit.png",
+        "fps": 12
+      },
+      "death": {
+        "file": "sprites/ghoul_death.png",
+        "fps": 8
+      }
+    }
+  }
+}

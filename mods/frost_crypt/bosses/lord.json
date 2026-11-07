@@ -1,0 +1,108 @@
+{
+  "id": "frost_lord",
+  "name": "Ледяной лорд",
+  "symbol": "L",
+  "stats": {
+    "health": 260,
+    "smart_health_multiplier": 1.5,
+    "speed": 2,
+    "stop_distance": 2,
+    "arena": 14,
+    "activation_range": 14,
+    "enrage_at": 0.5,
+    "max_minions": 4
+  },
+  "sprite": {
+    "frame": [
+      160,
+      111
+    ],
+    "scale": 1.9,
+    "animations": {
+      "idle": {
+        "file": "sprites/lord_idle.png",
+        "fps": 7
+      },
+      "run": {
+        "file": "sprites/lord_run.png",
+        "fps": 10
+      },
+      "attack": {
+        "file": "sprites/lord_attack.png",
+        "fps": 10
+      },
+      "attack2": {
+        "file": "sprites/lord_attack2.png",
+        "fps": 10
+      },
+      "smash": {
+        "file": "sprites/lord_smash.png",
+        "fps": 8
+      },
+      "hit": {
+        "file": "sprites/lord_hit.png",
+        "fps": 12
+      },
+      "death": {
+        "file": "sprites/lord_death.png",
+        "fps": 7
+      }
+    }
+  },
+  "attacks": [
+    {
+      "type": "melee",
+      "range": 2.3,
+      "damage": 16,
+      "interval": 1.4,
+      "windup": 0.22,
+      "animation": "attack"
+    },
+    {
+      "type": "projectile",
+      "pattern": "fan",
+      "projectile": "bolt",
+      "count": 3,
+      "enraged_count": 5,
+      "spread": 14,
+      "speed": 9,
+      "damage": 10,
+      "interval": 5,
+      "min_range": 3,
+      "windup": 0.3,
+      "gap": 0,
+      "scale": 1.4,
+      "mouth": [
+        1.4,
+        -1.8
+      ],
+      "animation": "attack2"
+    },
+    {
+      "type": "shockwave",
+      "radius": 9,
+      "speed": 9,
+      "damage": 18,
+      "interval": 8,
+      "windup": 0.28,
+      "animation": "smash"
+    },
+    {
+      "type": "summon",
+      "enemy": "G",
+      "count": 2,
+      "interval": 14,
+      "windup": 0.5,
+      "near_player": true,
+      "animation": "attack"
+    },
+    {
+      "type": "charge",
+      "speed": 10,
+      "damage": 20,
+      "interval": 9,
+      "windup": 0.7,
+      "max_time": 1.5
+    }
+  ]
+}

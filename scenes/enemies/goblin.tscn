@@ -1,0 +1,58 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/walker.gd" id="1_walker"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/goblin.tres" id="2_frames"]
+[ext_resource type="SpriteFrames" path="res://assets/frames/bomb.tres" id="3_bomb"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_goblin"]
+size = Vector2(22, 44)
+
+[node name="Goblin" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 17
+script = ExtResource("1_walker")
+max_health = 30
+power_reward = 12
+dodge_chance = 0.4
+flee_below_health = 0.3
+corpse_time = 0.8
+can_jump_on_blocks = true
+aggro_range_tiles = 7.0
+move_speed_tiles = 4.5
+attack_damage = 10
+attack_cooldown = 1.0
+attack_duration = 0.5
+attack_hit_time = 0.3
+throw_frames = ExtResource("3_bomb")
+throw_damage = 12
+throw_cooldown = 3.5
+throw_min_range_tiles = 3.5
+throw_max_range_tiles = 7.0
+throw_duration = 0.6
+throw_release_time = 0.4
+throw_explode_radius_tiles = 1.2
+throw_scale = 0.9
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_goblin")
+
+[node name="Body" type="Node2D" parent="."]
+
+[node name="Sprite" type="AnimatedSprite2D" parent="Body"]
+scale = Vector2(1.3, 1.3)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+autoplay = "idle"
+offset = Vector2(0, -26)
+
+[node name="StateLabel" type="Label" parent="."]
+offset_left = -50.0
+offset_top = -70.0
+offset_right = 50.0
+offset_bottom = -54.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 10
+text = "IDLE"
+horizontal_alignment = 1
