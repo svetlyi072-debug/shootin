@@ -15,6 +15,7 @@ var _detail_meta: Label
 var _detail_text: Label
 var _detail_content: Label
 var _detail_problems: Label
+var _settings_box: VBoxContainer
 var _play_button: Button
 var _continue_button: Button
 var _difficulty_row: HBoxContainer
@@ -90,10 +91,15 @@ func _build_ui() -> void:
 	scroll.add_child(_list)
 
 	# Правая часть: описание выбранного мода.
+	# Правая часть прокручивается: у мода могут быть настройки, и на низком экране всё не поместится.
+	var right_scroll := ScrollContainer.new()
+	right_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	right_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	body.add_child(right_scroll)
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	right.add_theme_constant_override("separation", 8)
-	body.add_child(right)
+	right_scroll.add_child(right)
 	_detail_title = _label("", 28)
 	right.add_child(_detail_title)
 	_detail_meta = _label("", 14)
@@ -101,6 +107,11 @@ func _build_ui() -> void:
 	_detail_text = _label("", 17)
 	_detail_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(_detail_text)
+	# Настройки сразу под описанием: на низком экране их не придётся искать внизу.
+	_settings_box = VBoxContainer.new()
+	_settings_box.add_theme_constant_override("separation", 6)
+	_settings_box.visible = false
+	right.add_child(_settings_box)
 	_detail_content = _label("", 16)
 	_detail_content.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	right.add_child(_detail_content)
@@ -230,6 +241,7 @@ func _show_detail() -> void:
 	_play_button.visible = false
 	_continue_button.visible = false
 	_difficulty_row.visible = _difficulty_row.visible and mod != null
+	_build_settings(mod)
 	if mod == null:
 		_detail_title.text = ""
 		_detail_meta.text = ""
@@ -268,6 +280,77 @@ func _show_detail() -> void:
 		if not saved.is_empty() and saved["level_index"] < mod.campaign["levels"].size():
 			_continue_button.visible = true
 			_continue_button.text = "Продолжить с уровня %d" % (int(saved["level_index"]) + 1)
+
+
+# --- Настройки мода (API 2) ------------------------------------------------------------------------
+
+## Строит элементы управления для настроек выбранного мода: галочка (bool), список (choice), ползунок (number).
+## Изменения сразу запоминаются (Mods.set_setting) и действуют со следующего забега.
+func _build_settings(mod: ModInfo) -> void:
+	for child in _settings_box.get_children():
+		child.queue_free()
+	_settings_box.visible = mod != null and mod.ok() and not mod.settings.is_empty()
+	if not _settings_box.visible:
+		return
+	var header := _label("Настройки мода", 22)
+	header.add_theme_color_override("font_color", Color(1.0, 0.86, 0.35))
+	_settings_box.add_child(header)
+	if not mod.active:
+		_settings_box.add_child(_label("Мод выключен: выбранное сохранится и заработает после включения.", 14))
+	for setting in mod.settings:
+		_settings_box.add_child(_make_setting_row(mod.id, setting))
+
+
+func _make_setting_row(mod_id: String, setting: Dictionary) -> Control:
+	var id: String = setting["id"]
+	var value = Mods.get_setting(mod_id, id)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	match setting["type"]:
+		"bool":
+			var check := CheckBox.new()
+			check.text = setting["title"]
+			check.button_pressed = bool(value)
+			check.add_theme_font_size_override("font_size", 18)
+			check.toggled.connect(func(on: bool) -> void: Mods.set_setting(mod_id, id, on))
+			box.add_child(check)
+		"choice":
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 10)
+			row.add_child(_label(setting["title"], 18))
+			var options := OptionButton.new()
+			for option in setting["options"]:
+				options.add_item(option)
+			options.select(int(value))
+			options.add_theme_font_size_override("font_size", 17)
+			options.item_selected.connect(func(index: int) -> void: Mods.set_setting(mod_id, id, index))
+			row.add_child(options)
+			box.add_child(row)
+		"number":
+			var row := HBoxContainer.new()
+			row.add_theme_constant_override("separation", 10)
+			row.add_child(_label(setting["title"], 18))
+			var slider := HSlider.new()
+			slider.min_value = setting["min"]
+			slider.max_value = setting["max"]
+			slider.step = setting["step"]
+			slider.value = float(value)
+			slider.custom_minimum_size = Vector2(180, 24)
+			slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+			row.add_child(slider)
+			var shown := _label(str(snappedf(float(value), 0.01)), 18)
+			slider.value_changed.connect(func(v: float) -> void:
+				shown.text = str(snappedf(v, 0.01))
+				Mods.set_setting(mod_id, id, v))
+			row.add_child(shown)
+			box.add_child(row)
+	if str(setting["description"]) != "":
+		var description := _label(setting["description"], 14)
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		description.custom_minimum_size = Vector2(380, 0)
+		description.add_theme_color_override("font_color", Color(1, 1, 1, 0.72))
+		box.add_child(description)
+	return box
 
 
 # --- Действия ---------------------------------------------------------------------------------------

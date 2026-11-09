@@ -22,6 +22,10 @@ signal mods_changed
 
 const API_VERSION := ModInfo.API_VERSION
 const CONFIG_PATH := "user://mods.cfg"
+## Выбранные игроком значения настроек модов: раздел — id мода, ключ — id настройки.
+const SETTINGS_PATH := "user://mod_settings.cfg"
+const SETTING_ID_PATTERN := "^[a-z][a-z0-9_]{0,31}$"
+const SETTING_TYPES := ["bool", "choice", "number"]
 const USER_MODS_DIR := "user://mods"
 const ID_PATTERN := "^[a-z0-9][a-z0-9_\\-]{1,39}$"
 ## Символы карты, занятые самой картой (мод не может отдать их своим врагам).
@@ -52,6 +56,8 @@ var _scripts: Array[Node] = []
 var _script_cache := {}
 var _enabled := {}
 var _consent := {}
+## id мода → {id настройки → значение, выбранное игроком}.
+var _setting_values := {}
 var _by_id := {}
 var _builtin_spawns := {}
 
@@ -174,6 +180,7 @@ func _add_mod(path: String) -> void:
 		mod.error("мод с таким id уже есть (%s) — этот пропущен" % _by_id[mod.id].path.get_file())
 	if mod.api > API_VERSION:
 		mod.error("мод сделан для более новой версии модов (api %d, у игры %d) — обновите игру" % [mod.api, API_VERSION])
+	_parse_settings(mod)
 	for file in mod.files.list_files("scripts", ["gd"]):
 		mod.script_files.append(file)
 	if mod.ok():
@@ -186,12 +193,168 @@ func get_mod(id: String) -> ModInfo:
 
 
 # =====================================================================================================
+# Настройки модов (API 2)
+# =====================================================================================================
+
+## Читает "settings" из mod.json: список {id, type: bool | choice | number, title, description, default, ...}.
+## Неправильная настройка пропускается с понятным сообщением, остальные работают.
+func _parse_settings(mod: ModInfo) -> void:
+	var declared = mod.manifest.get("settings", [])
+	if not declared is Array:
+		mod.problem("settings в mod.json должен быть списком настроек")
+		return
+	var id_regex := RegEx.create_from_string(SETTING_ID_PATTERN)
+	var seen := {}
+	for index in declared.size():
+		var entry = declared[index]
+		var where := "настройка №%d" % (index + 1)
+		if not entry is Dictionary:
+			mod.problem("%s: ожидался объект {\"id\": …, \"type\": …}" % where)
+			continue
+		var id := str(entry.get("id", ""))
+		if id_regex.search(id) == null:
+			mod.problem("%s: id «%s» не подходит (строчные латинские буквы, цифры, «_», не длиннее 32; начинается с буквы)" % [where, id])
+			continue
+		where = "настройка «%s»" % id
+		if seen.has(id):
+			mod.problem("%s: id повторяется" % where)
+			continue
+		var type := str(entry.get("type", "bool"))
+		if not SETTING_TYPES.has(type):
+			mod.problem("%s: тип «%s» неизвестен (доступны: %s)" % [where, type, ", ".join(SETTING_TYPES)])
+			continue
+		var setting := {"id": id, "type": type, "title": str(entry.get("title", id)), "description": str(entry.get("description", ""))}
+		match type:
+			"bool":
+				setting["default"] = _truthy(entry.get("default", false))
+			"choice":
+				var options = entry.get("options", [])
+				if not options is Array or options.size() < 2:
+					mod.problem("%s: у choice нужен список options минимум из двух вариантов" % where)
+					continue
+				var names: Array = []
+				for option in options:
+					names.append(str(option))
+				setting["options"] = names
+				setting["default"] = clampi(int(entry.get("default", 0)), 0, names.size() - 1)
+			"number":
+				var low := float(entry.get("min", 0))
+				var high := float(entry.get("max", 100))
+				if high <= low:
+					mod.problem("%s: max должен быть больше min" % where)
+					continue
+				var step := float(entry.get("step", 1))
+				setting["min"] = low
+				setting["max"] = high
+				setting["step"] = step if step > 0.0 else 1.0
+				setting["default"] = clampf(float(entry.get("default", low)), low, high)
+				setting["default"] = _coerce_setting(setting, setting["default"])  # и приводим к шагу
+		seen[id] = true
+		mod.settings.append(setting)
+
+
+func _setting_definition(mod_id: String, setting_id: String) -> Dictionary:
+	var mod := get_mod(mod_id)
+	if mod == null:
+		return {}
+	for setting in mod.settings:
+		if setting["id"] == setting_id:
+			return setting
+	return {}
+
+
+## Приводит значение к допустимому для настройки (чужое, старое или испорченное — к ближайшему).
+func _coerce_setting(setting: Dictionary, value):
+	match setting["type"]:
+		"bool":
+			return _truthy(value)
+		"choice":
+			return clampi(int(value), 0, setting["options"].size() - 1)
+		"number":
+			var stepped: float = snappedf(float(value) - float(setting["min"]), float(setting["step"])) + float(setting["min"])
+			return clampf(stepped, setting["min"], setting["max"])
+	return value
+
+
+## Значение настройки: выбранное игроком, иначе «default» из mod.json. null — такой настройки нет.
+func get_setting(mod_id: String, setting_id: String):
+	var setting := _setting_definition(mod_id, setting_id)
+	if setting.is_empty():
+		return null
+	var chosen: Dictionary = _setting_values.get(mod_id, {})
+	return _coerce_setting(setting, chosen[setting_id]) if chosen.has(setting_id) else setting["default"]
+
+
+## Запоминает выбор игрока (user://mod_settings.cfg) и сообщает скриптам этого мода: _setting_changed(id, value).
+func set_setting(mod_id: String, setting_id: String, value) -> void:
+	var setting := _setting_definition(mod_id, setting_id)
+	if setting.is_empty():
+		return
+	var coerced = _coerce_setting(setting, value)
+	if not _setting_values.has(mod_id):
+		_setting_values[mod_id] = {}
+	_setting_values[mod_id][setting_id] = coerced
+	_save_settings()
+	for node in _scripts:
+		if is_instance_valid(node) and node.mod != null and node.mod.id == mod_id:
+			node._setting_changed(setting_id, coerced)
+
+
+func _load_settings() -> void:
+	_setting_values.clear()
+	var config := ConfigFile.new()
+	if config.load(SETTINGS_PATH) != OK:
+		return
+	for section in config.get_sections():
+		_setting_values[section] = {}
+		for key in config.get_section_keys(section):
+			_setting_values[section][key] = config.get_value(section, key)
+
+
+func _save_settings() -> void:
+	var config := ConfigFile.new()
+	for mod_id in _setting_values:
+		for key in _setting_values[mod_id]:
+			config.set_value(mod_id, key, _setting_values[mod_id][key])
+	config.save(SETTINGS_PATH)
+
+
+# =====================================================================================================
+# Правила забега от скриптов модов (API 2)
+# =====================================================================================================
+
+## Сложность, которую зафиксировал включённый мод (0 / 1 / 2), или -1, если никто не фиксирует.
+func forced_difficulty() -> int:
+	for node in _scripts:
+		if is_instance_valid(node) and node.forced_difficulty >= 0:
+			return node.forced_difficulty
+	return -1
+
+
+## Название мода, который фиксирует сложность (для подсказки в меню).
+func forced_difficulty_mod() -> String:
+	for node in _scripts:
+		if is_instance_valid(node) and node.forced_difficulty >= 0:
+			return node.mod.title
+	return ""
+
+
+## Включено ли правило «смерть — конец забега» (какой-либо мод вызвал set_permadeath(true)).
+func permadeath_active() -> bool:
+	for node in _scripts:
+		if is_instance_valid(node) and node.permadeath:
+			return true
+	return false
+
+
+# =====================================================================================================
 # Включение, подтверждение скриптов, сохранение выбора
 # =====================================================================================================
 
 func _load_config() -> void:
 	_enabled.clear()
 	_consent.clear()
+	_load_settings()
 	var config := ConfigFile.new()
 	if config.load(CONFIG_PATH) != OK:
 		return

@@ -47,6 +47,9 @@ signal enemies_left_changed(count: int)
 signal hint(text: String)
 signal level_completed(next_title: String)
 signal game_won
+## Уровню включили или выключили условие «победить всех врагов» (Level.require_clear_all, API модов 2).
+@warning_ignore("unused_signal")
+signal require_clear_changed(on: bool)
 
 ## true после смерти игрока, прохождения уровня или победы.
 ## Уровни сложности:
@@ -77,6 +80,17 @@ var level_index := 0
 var carried_power := 0
 ## Пройдена ли вся игра (после этого R начинает игру заново).
 var game_completed := false
+
+
+func _ready() -> void:
+	player_died.connect(_on_player_died)
+
+
+## Мод включил правило «смерть — конец забега»: сохранение стирается, чтобы нельзя было
+## вернуться на уровень, где погиб, кнопкой «Продолжить».
+func _on_player_died() -> void:
+	if Mods.permadeath_active():
+		clear_progress()
 
 
 ## Сбрасывает состояние партии. Вызывается при (пере)запуске главной сцены.
@@ -128,8 +142,22 @@ func complete_level(player_power: int) -> void:
 
 func go_to_level(index: int) -> void:
 	level_index = clampi(index, 0, level_count() - 1)
+	# Мод может зафиксировать сложность (ModScript.lock_difficulty) — любой вход на уровень
+	# (новая игра, «Продолжить», следующий уровень) проходит через эту функцию.
+	var forced := Mods.forced_difficulty()
+	if forced >= 0:
+		difficulty = clampi(forced, 0, DIFFICULTY_NAMES.size() - 1) as Difficulty
 	get_tree().paused = false
 	get_tree().change_scene_to_file(MAIN_SCENE)
+
+
+## Забег заново с первого уровня (встроенной игры или текущей кампании мода) на той же сложности.
+## Так начинает игру после смерти хардкорный режим.
+func restart_run() -> void:
+	if in_campaign():
+		start_campaign(campaign_id, campaign_title, campaign_levels, difficulty)
+	else:
+		start_new_game(difficulty)
 
 
 func start_new_game(new_difficulty: Difficulty = difficulty) -> void:

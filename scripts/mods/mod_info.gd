@@ -2,7 +2,9 @@ class_name ModInfo
 extends RefCounted
 ## Один мод: описание из mod.json, его файлы, состояние (включён/выключен) и ошибки.
 
-const API_VERSION := 1
+## API 2: настройки мода (settings в mod.json), правила забега для скриптов
+## (lock_difficulty, set_permadeath) и require_clear_all() у уровня.
+const API_VERSION := 2
 
 var id := ""
 var title := ""
@@ -30,6 +32,9 @@ var bosses := {}
 var levels := {}
 ## Кампания: {"title": ..., "levels": [относительные пути]} или пустой словарь.
 var campaign := {}
+## Настройки мода из mod.json (проверенные): список словарей {id, type, title, description, default,
+## options | min, max, step}. Значения, выбранные игроком, хранит Mods (get_setting).
+var settings: Array = []
 
 
 func has_scripts() -> bool:

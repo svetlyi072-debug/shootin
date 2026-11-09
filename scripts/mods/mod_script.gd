@@ -11,6 +11,10 @@ extends Node
 
 ## Мод, которому принадлежит скрипт (id, title, files, …). Заполняется игрой.
 var mod: ModInfo
+## Правила забега (API 2), которые скрипт включает помощниками lock_difficulty() и set_permadeath().
+## Пока мод включён, игра их читает; выключили мод — правила исчезли вместе со скриптом.
+var forced_difficulty := -1
+var permadeath := false
 
 
 # --- Хуки: вызываются игрой, переопределите нужные ---------------------------------------------
@@ -48,6 +52,12 @@ func _player_spawned(_player: Node) -> void:
 
 
 func _player_died() -> void:
+	pass
+
+
+## Игрок поменял настройку мода в меню «Моды» (API 2). value — уже проверенное значение
+## (bool, номер варианта у choice, число у number).
+func _setting_changed(_id: String, _value) -> void:
 	pass
 
 
@@ -107,6 +117,25 @@ func load_frames(spec: Dictionary) -> SpriteFrames:
 ## Добавляет свой символ карты: factory() должна вернуть Node2D (например, врага из своей сцены).
 func register_symbol(symbol: String, factory: Callable) -> bool:
 	return Mods.register_script_symbol(mod, symbol, factory)
+
+
+## Значение настройки мода (API 2): то, что выбрал игрок в меню «Моды», а если не выбирал — «default».
+## bool → true/false, choice → номер варианта (с нуля), number → число.
+func get_setting(id: String):
+	return Mods.get_setting(mod.id, id)
+
+
+## Фиксирует сложность всех забегов, пока мод включён (API 2): Game.Difficulty.EASY / NORMAL / HARD
+## (то есть 0 / 1 / 2). -1 снимает фиксацию — тогда сложность выбирает игрок в меню.
+func lock_difficulty(difficulty: int) -> void:
+	forced_difficulty = difficulty
+
+
+## Включает правило «смерть — конец забега» (API 2): после гибели игрок может только начать игру
+## (или кампанию мода) с первого уровня или выйти в меню; сохранение «Продолжить» стирается,
+## а перезапуск отдельного уровня клавишей R и из паузы отключён.
+func set_permadeath(on: bool) -> void:
+	permadeath = on
 
 
 ## Сохраняет данные мода (словарь с числами, строками, списками) — переживёт перезапуск игры.

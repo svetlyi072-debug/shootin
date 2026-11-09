@@ -61,6 +61,8 @@ func _ready() -> void:
 	%DifficultyInfo.text = "Сложность: %s" % Game.difficulty_name()
 	_resume_button.pressed.connect(_set_paused.bind(false))
 	%RestartButton.pressed.connect(_restart_level)
+	if Mods.permadeath_active():
+		%RestartButton.text = "Начать игру заново (с 1 уровня)"
 	%MenuButton.pressed.connect(Game.go_to_menu)
 
 	Game.player_health_changed.connect(_on_player_health_changed)
@@ -71,6 +73,7 @@ func _ready() -> void:
 	Game.boss_health_changed.connect(_on_boss_health_changed)
 	Game.boss_defeated.connect(_boss_panel.hide)
 	Game.level_started.connect(_on_level_started)
+	Game.require_clear_changed.connect(_on_require_clear_changed)
 	Game.enemies_left_changed.connect(_on_enemies_left_changed)
 	Game.hint.connect(_show_hint)
 	Game.level_completed.connect(_on_level_completed)
@@ -109,12 +112,20 @@ func _on_level_started(number: int, total: int, title: String, require_clear: bo
 	_banner_timer.start(BANNER_TIME)
 
 
+## Мод включил (или выключил) условие «победить всех врагов» уже после начала уровня.
+func _on_require_clear_changed(on: bool) -> void:
+	_enemies_label.visible = on
+
+
 func _on_enemies_left_changed(count: int) -> void:
 	_enemies_label.text = "Врагов осталось: %d" % count
 
 
 func _on_player_died() -> void:
-	_show_message("Ты умер", "R — начать уровень заново · Esc — в главное меню", true)
+	if Mods.permadeath_active():  # хардкор: смерть — конец забега
+		_show_message("Ты умер", "ХАРДКОР: всё сначала. R — начать игру с 1 уровня · Esc — в главное меню", true)
+	else:
+		_show_message("Ты умер", "R — начать уровень заново · Esc — в главное меню", true)
 
 
 func _on_boss_activated(boss_name: String, current: int, maximum: int) -> void:
@@ -172,6 +183,8 @@ func _make_touch_buttons() -> void:
 func _restart_after_end() -> void:
 	if Game.game_completed:
 		Game.start_new_game()
+	elif Mods.permadeath_active():
+		Game.restart_run()
 	else:
 		get_tree().reload_current_scene()
 
@@ -198,4 +211,7 @@ func _set_paused(paused: bool) -> void:
 
 func _restart_level() -> void:
 	get_tree().paused = false
-	get_tree().reload_current_scene()
+	if Mods.permadeath_active():  # в хардкоре отдельный уровень заново не начать — только всю игру
+		Game.restart_run()
+	else:
+		get_tree().reload_current_scene()

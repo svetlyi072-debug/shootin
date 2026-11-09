@@ -102,6 +102,11 @@ var _zones: Array = []
 var _zone_looks: Array = []
 ## Выход открывается только когда на уровне не осталось врагов.
 var require_clear := false
+## Победа над главным боссом засчитывается, только когда убиты и все остальные враги
+## (включается require_clear_all — например, модом «Хардкорный режим» на финальном уровне).
+var win_requires_clear := false
+## Главный босс побеждён, но уровень ещё не завершён (ждём остальных врагов).
+var _boss_win_pending := false
 var theme_name := DEFAULT_THEME
 
 var _terrain_origin := Vector2i.ZERO
@@ -338,6 +343,7 @@ func _update_enemy_count() -> void:
 	Game.enemies_left_changed.emit(count)
 	for door in _exits:
 		door.locked = require_clear and count > 0
+	_check_boss_win()
 
 
 func _check_exits() -> void:
@@ -358,13 +364,39 @@ func _on_exit_touched(door: ExitDoor) -> void:
 ## На уровне без выхода победа над боссом завершает уровень (а если задан WIN_BOSS —
 ## победа над этим боссом; остальные на таком уровне необязательные).
 func _on_boss_defeated() -> void:
-	if _win_symbol == "" and _exits.is_empty() and is_instance_valid(_player):
-		Game.complete_level(_player.power)
+	if _win_symbol == "" and _exits.is_empty():
+		_boss_win_pending = true
+		_check_boss_win()
 
 
 func _on_win_boss_died(_boss: Enemy) -> void:
+	_boss_win_pending = true
+	if win_requires_clear:
+		var left := get_tree().get_nodes_in_group("enemies").size()
+		if left > 0:
+			Game.hint.emit("Главный босс повержен! Чтобы закончить, добей остальных врагов (осталось %d)" % left)
+	_check_boss_win()
+
+
+## Завершает уровень победой над главным боссом — сразу или, если нужно убить всех, когда врагов не осталось.
+func _check_boss_win() -> void:
+	if not _boss_win_pending or Game.is_game_over:
+		return
+	if win_requires_clear and not get_tree().get_nodes_in_group("enemies").is_empty():
+		return
 	if is_instance_valid(_player) and not _player.is_dead():
 		Game.complete_level(_player.power)
+
+
+## Для скриптов модов (API 2): включает условие «победить всех врагов» — выходы закрыты, пока враги
+## есть, а победа над главным боссом (WIN_BOSS или единственный босс без выхода) засчитывается, только когда
+## не остался ни один враг. HUD показывает счётчик «Врагов осталось».
+func require_clear_all(on: bool = true) -> void:
+	require_clear = on
+	win_requires_clear = on
+	_enemies_left = -1
+	_update_enemy_count()
+	Game.require_clear_changed.emit(on)
 
 
 ## Настройки босса на огромной карте: поводок, ширина арены, главный босс.
