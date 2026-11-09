@@ -101,7 +101,7 @@ func _describe(difficulty: int) -> void:
 	if Touch.enabled:
 		text = text.replace("(держи H или среднюю кнопку мыши)", "(держи кнопку щита справа)")
 	var forced := Mods.forced_difficulty()
-	if forced >= 0:  # включённый мод (например, «Хардкорный режим») задаёт сложность сам
+	if forced >= 0:  # включённый мод (например, «Хардкор») задаёт сложность сам
 		text += "
 
 Сложность задаёт мод «%s»: %s." % [Mods.forced_difficulty_mod(), Game.DIFFICULTY_NAMES[forced]]
