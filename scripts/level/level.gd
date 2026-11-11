@@ -166,6 +166,7 @@ func _ready() -> void:
 	_add_side_walls()
 	_make_chunks()
 	nav = NavGrid.new(self, _map_size.y)
+	add_child(BossMusic.new())  # музыка боя с боссом: включается, когда начался бой (см. boss_music.gd)
 
 	if _player:
 		_player.set_camera_limits(Rect2(Vector2.ZERO, Vector2(_map_size) * Game.TILE))

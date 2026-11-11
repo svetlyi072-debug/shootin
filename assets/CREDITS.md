@@ -43,3 +43,9 @@ SpriteFrames-ресурсы в `frames/` собраны из этих карти
 
 Примеры модов (`mods/frost_crypt/sprites/`, `mods/vampire_rage/sprites/`, `mods/_template/sprites/`) — перекрашенные
 спрайты зомби из LuizMelo (Medieval King Pack 2 и Hero Knight, CC0), см. выше.
+
+## Музыка
+
+| Файл | Что это | Источник и лицензия |
+|---|---|---|
+| `music/boss_battle.ogg` | «The Iron Vanguard» — музыка боя с боссом (обработанная версия `music/_original/The_Iron_Vanguard.mp3`) | добавлена автором игры; источник и условия лицензии допишите здесь (для сгенерированной музыки — условия вашего тарифа генератора) |

@@ -114,6 +114,11 @@ func is_enraged() -> bool:
 	return _enraged
 
 
+## Босс проснулся (игрок подошёл или ударил его) и ещё жив. По этому признаку включается музыка боя.
+func is_awake() -> bool:
+	return _active and not _dead
+
+
 func _activate() -> void:
 	if _active:
 		return
