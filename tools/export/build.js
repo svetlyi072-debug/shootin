@@ -46,8 +46,8 @@ function rmrf(target) { fs.rmSync(target, { recursive: true, force: true }); }
 function size(file) { return (fs.statSync(file).size / 1048576).toFixed(1) + ' МБ'; }
 function fail(text) { console.error('\nОШИБКА: ' + text); process.exit(1); }
 
-function run(command, args, { cwd = ROOT, allowFail = false, quiet = false } = {}) {
-  const r = cp.spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 1 << 28, windowsHide: true });
+function run(command, args, { cwd = ROOT, allowFail = false, quiet = false, env = process.env } = {}) {
+  const r = cp.spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 1 << 28, windowsHide: true, env });
   const text = (r.stdout || '') + (r.stderr || '');
   if (!quiet && text.trim()) log(text.trim().split('\n').slice(-12).join('\n'));
   if (r.status !== 0 && !allowFail) fail(path.basename(command) + ' завершился с кодом ' + r.status + '\n' + text.slice(-2000));
@@ -88,18 +88,29 @@ function peHasSection(buf, wanted) {
   return false;
 }
 
+// Проверки собранного exe идут на ОТДЕЛЬНОЙ папке данных (подмена APPDATA): они не трогают настоящие сохранения,
+// настройки и моды игрока. Шаблоны экспорта и настройки Godot лежат в настоящем APPDATA, поэтому подменяем только здесь.
+const TEST_ENV = Object.assign({}, process.env, { APPDATA: path.join(os.tmpdir(), 'shootin-test-appdata') });
+
 function checkSmoke(exe) {
   if (SKIP_TESTS) return;
-  const r = run(exe, ['--headless', '--script', path.join(__dirname, 'smoke_test.gd')], { quiet: true, allowFail: true });
+  const r = run(exe, ['--headless', '--script', path.join(__dirname, 'smoke_test.gd')], { quiet: true, allowFail: true, env: TEST_ENV });
   if (!/ИТОГ: ВСЁ ХОРОШО/.test(r.text)) fail('проверка игры на собранном exe не пройдена:\n' + r.text.slice(-2500));
   log('проверка на собранном exe: все 34 уровня загружаются из упакованных ресурсов');
 }
 
 function checkTouch(exe) {
   if (SKIP_TESTS) return;
-  const r = run(exe, ['--headless', '--script', path.join(__dirname, 'touch_test.gd')], { quiet: true, allowFail: true });
+  const r = run(exe, ['--headless', '--script', path.join(__dirname, 'touch_test.gd')], { quiet: true, allowFail: true, env: TEST_ENV });
   if (!/ИТОГ: ВСЁ ХОРОШО/.test(r.text)) fail('проверка сенсорного управления на собранном exe не пройдена:\n' + r.text.slice(-2500));
   log('проверка на собранном exe: джойстик, кнопки, тап-выстрел и сфера по зажатию работают');
+}
+function checkBossMusic(exe) {
+  if (SKIP_TESTS) return;
+  const r = run(exe, ['--headless', '--script', path.join(__dirname, 'boss_music_test.gd')], { quiet: true, allowFail: true, env: TEST_ENV });
+  if (!/ИТОГ: ВСЁ ХОРОШО/.test(r.text)) fail('проверка музыки боя на собранном exe не пройдена:\n' + r.text.slice(-2500));
+  const real = /настоящий трек загружен/.test(r.text);
+  log('проверка на собранном exe: музыка боя включается рядом с боссом и отменяется, если убежать' + (real ? ' (настоящий трек упакован в игру)' : ' (трека в сборке нет, проверка на заглушке)'));
 }
 
 // --- Windows ---------------------------------------------------------------------------------
@@ -162,6 +173,7 @@ function buildWindows() {
   log('PCK встроен в exe (секция pck найдена)');
   checkSmoke(exe);
   checkTouch(exe);
+  checkBossMusic(exe);
   const setup = path.join(OUT, 'windows', `ShootIn-${VERSION}-Setup.exe`);
   buildInstaller(exe, setup);
   fs.writeFileSync(path.join(OUT, 'windows', 'portable', 'README.txt'),
